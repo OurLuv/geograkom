@@ -7,10 +7,10 @@ import (
 
 	"github.com/OurLuv/geograkom/internal/config"
 	"github.com/OurLuv/geograkom/internal/model"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var conn *pgx.Conn
+var conn *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	var err error

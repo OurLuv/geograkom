@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/OurLuv/geograkom/internal/model"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type RouteStorage struct {
-	conn *pgx.Conn
+	conn *pgxpool.Pool
 }
 
 func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
@@ -72,7 +72,7 @@ func (rs *RouteStorage) DeleteRouteById(id int) error {
 	return nil
 }
 
-func NewRouteStorage(conn *pgx.Conn) *RouteStorage {
+func NewRouteStorage(conn *pgxpool.Pool) *RouteStorage {
 	return &RouteStorage{
 		conn: conn,
 	}
