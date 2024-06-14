@@ -23,10 +23,10 @@ type Handler struct {
 func (h *Handler) InitRoutes() *mux.Router {
 	r := mux.NewRouter()
 	// регистрация(создание) нового маршрута
-	r.HandleFunc("/api/route/register", nil).Methods("POST")
+	r.HandleFunc("/api/route/register", h.RegisterRoute).Methods("POST")
 
 	//(где id - индентификатор маршрута)  - получение данных о маршруте по индентификатору.
-	r.HandleFunc("/api/route/{id}", nil).Methods("GET")
+	r.HandleFunc("/api/route/{id}", h.GetRouteByID).Methods("GET")
 
 	//удаление маршрутов по индентификаторам
 	r.HandleFunc("/api/route/{id} ", nil).Methods("DELETE")
@@ -43,8 +43,9 @@ func SendError(w http.ResponseWriter, errorStr string, code int) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func NewHandler(log *slog.Logger) *Handler {
+func NewHandler(s RouteService, log *slog.Logger) *Handler {
 	return &Handler{
-		log: log,
+		RouteService: s,
+		log:          log,
 	}
 }

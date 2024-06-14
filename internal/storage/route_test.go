@@ -37,3 +37,13 @@ func TestCreateRoute(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestGetRouteById(t *testing.T) {
+	repo := NewRouteStorage(conn)
+	id := 2
+	res, err := repo.GetRouteByID(id)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(res)
+}

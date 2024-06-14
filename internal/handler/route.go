@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/OurLuv/geograkom/internal/model"
+	"github.com/gorilla/mux"
 )
 
 // I prefer to describe the interface where I use it
 type RouteService interface {
 	RegisterRoute(model.Route) (*model.Route, error)
+	GetRouteByID(int) (*model.Route, error)
 }
 
 // * Register route
@@ -56,5 +59,39 @@ func (h *Handler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	h.log.Debug("Result of registering route", slog.Any("resp", resp))
 	w.WriteHeader(result.SuccesStatusCode)
 	json.NewEncoder(w).Encode(resp)
+
+}
+
+// * Get request by id
+func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	routeIdStr := mux.Vars(r)["id"]
+	routeId, err := strconv.Atoi(routeIdStr)
+
+	// validating
+	if err != nil {
+		SendError(w, err.Error(), http.StatusBadRequest)
+		h.log.Error("bad request", slog.String("err", err.Error()))
+		return
+	}
+
+	result, err := h.RouteService.GetRouteByID(routeId)
+	if err != nil {
+		SendError(w, "server error", http.StatusInternalServerError)
+		h.log.Error("server error", slog.String("err", err.Error()))
+		return
+	}
+
+	// route's flag is_actual = FALSE
+	if result.SuccesStatusCode == 410 {
+		h.log.Debug("Result of registering route", slog.Any("resp", result))
+		w.WriteHeader(result.SuccesStatusCode)
+		json.NewEncoder(w).Encode(result)
+		return
+	}
+
+	h.log.Debug("Result of registering route", slog.Any("resp", result))
+	w.WriteHeader(result.SuccesStatusCode)
+	json.NewEncoder(w).Encode(result)
 
 }

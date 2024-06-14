@@ -7,6 +7,8 @@ import (
 
 	"github.com/OurLuv/geograkom/internal/config"
 	"github.com/OurLuv/geograkom/internal/handler"
+	"github.com/OurLuv/geograkom/internal/service"
+	"github.com/OurLuv/geograkom/internal/storage"
 	"github.com/golang-cz/devslog"
 	"gitlab.com/greyxor/slogor"
 )
@@ -16,7 +18,14 @@ func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env, cfg.LogLib)
 
-	h := handler.NewHandler(log)
+	conn, err := storage.NewConn(*cfg)
+	if err != nil {
+		log.Error("panic", slog.String("err", err.Error()))
+		panic(conn)
+	}
+	repo := storage.NewRouteStorage(conn)
+	s := service.NewRouteServcie(repo)
+	h := handler.NewHandler(s, log)
 	r := h.InitRoutes()
 	server := handler.NewServer(*cfg, r)
 

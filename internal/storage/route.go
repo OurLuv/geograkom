@@ -51,6 +51,16 @@ func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
 	return &route, nil
 }
 
+func (rs *RouteStorage) GetRouteByID(id int) (*model.Route, error) {
+	query := "SELECT * FROM routes WHERE route_id = $1"
+	var result model.Route
+	err := rs.conn.QueryRow(context.Background(), query, id).Scan(&result.Id, &result.Name, &result.Load, &result.CargoType, &result.IsActual)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 func NewRouteStorage(conn *pgx.Conn) *RouteStorage {
 	return &RouteStorage{
 		conn: conn,
