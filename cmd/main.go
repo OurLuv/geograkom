@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/OurLuv/geograkom/internal/config"
@@ -14,15 +17,19 @@ import (
 )
 
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env, cfg.LogLib)
 
 	conn, err := storage.NewConn(*cfg)
 	if err != nil {
-		log.Error("panic", slog.String("err", err.Error()))
+		log.Error("panic", slog.String("msg", err.Error()))
 		panic(conn)
 	}
+	defer conn.Close()
+
 	repo := storage.NewRouteStorage(conn)
 	s := service.NewRouteServcie(repo)
 	h := handler.NewHandler(s, log)
@@ -31,10 +38,21 @@ func main() {
 
 	log.Info("Starting application", slog.Any("cfg", cfg))
 
-	if err := server.Start(); err != nil {
-		log.Error("can't start server", slog.String("err", err.Error()))
-	}
+	go func() {
+		if err := server.Start(); err != nil {
+			log.Debug("server is off", slog.String("err", err.Error()))
+		}
+	}()
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	<-ctx.Done()
+	log.Info("Shutting down")
+	err = server.ShutDown()
+	if err != nil {
+		log.Error("Error while shutting down the server", slog.String("err", err.Error()))
+	}
 }
 
 func setupLogger(env string, lib string) *slog.Logger {
