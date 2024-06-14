@@ -28,8 +28,8 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//(где id - индентификатор маршрута)  - получение данных о маршруте по индентификатору.
 	r.HandleFunc("/api/route/{id}", h.GetRouteByID).Methods("GET")
 
-	//удаление маршрутов по индентификаторам
-	r.HandleFunc("/api/route/{id} ", nil).Methods("DELETE")
+	//удаление маршрутов
+	r.HandleFunc("/api/route/", h.DeleteRoutes).Methods("DELETE")
 
 	return r
 }

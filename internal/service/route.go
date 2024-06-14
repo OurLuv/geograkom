@@ -7,6 +7,7 @@ import (
 type RouteRepository interface {
 	CreateRoute(route model.Route) (*model.Route, error)
 	GetRouteByID(id int) (*model.Route, error)
+	DeleteRouteById(id int) error
 }
 
 type Route struct {
@@ -28,6 +29,7 @@ func (r *Route) RegisterRoute(route model.Route) (*model.Route, error) {
 	return result, nil
 }
 
+// * Getting route by id
 func (r *Route) GetRouteByID(id int) (*model.Route, error) {
 
 	result, err := r.repo.GetRouteByID(id)
@@ -41,6 +43,15 @@ func (r *Route) GetRouteByID(id int) (*model.Route, error) {
 	result.SuccesStatusCode = 200
 
 	return result, nil
+}
+
+// * Deleting routes
+func (r *Route) DeleteRoutes(id int) error {
+	err := r.repo.DeleteRouteById(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewRouteServcie(repo RouteRepository) *Route {

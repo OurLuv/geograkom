@@ -51,6 +51,7 @@ func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
 	return &route, nil
 }
 
+// * Getting route by id
 func (rs *RouteStorage) GetRouteByID(id int) (*model.Route, error) {
 	query := "SELECT * FROM routes WHERE route_id = $1"
 	var result model.Route
@@ -59,6 +60,16 @@ func (rs *RouteStorage) GetRouteByID(id int) (*model.Route, error) {
 		return nil, err
 	}
 	return &result, nil
+}
+
+// * Deleting route by id
+func (rs *RouteStorage) DeleteRouteById(id int) error {
+	query := "DELETE FROM routes WHERE route_id = $1"
+	_, err := rs.conn.Exec(context.Background(), query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewRouteStorage(conn *pgx.Conn) *RouteStorage {

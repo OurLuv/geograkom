@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/OurLuv/geograkom/internal/model"
 	"github.com/gorilla/mux"
@@ -15,6 +16,7 @@ import (
 type RouteService interface {
 	RegisterRoute(model.Route) (*model.Route, error)
 	GetRouteByID(int) (*model.Route, error)
+	DeleteRoutes(id int) error
 }
 
 // * Register route
@@ -94,4 +96,46 @@ func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(result.SuccesStatusCode)
 	json.NewEncoder(w).Encode(result)
 
+}
+
+// * Deleting routes
+func (h *Handler) DeleteRoutes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var routeIds []int
+
+	// getting id's
+	if err := json.NewDecoder(r.Body).Decode(&routeIds); err != nil {
+		SendError(w, err.Error(), http.StatusBadRequest)
+		h.log.Error("bad request", slog.String("err", err.Error()))
+		return
+	}
+
+	ch := make(chan int)
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	go func() {
+		for id := range ch {
+			wg.Add(1)
+			id := id
+			go func() {
+				defer wg.Done()
+				h.log.Debug("passing to service", slog.Any("id", id))
+				err := h.RouteService.DeleteRoutes(id)
+				if err != nil {
+					h.log.Error("error from DB", slog.String("err", err.Error()))
+					return
+				}
+				h.log.Debug("deleted from db", slog.Any("id", id))
+			}()
+		}
+	}()
+	// [1, 3, 4]
+	for _, v := range routeIds {
+		h.log.Debug("added to chan", slog.Any("id", v))
+		ch <- v
+	}
+	close(ch)
+
+	w.WriteHeader(202)
+	json.NewEncoder(w).Encode(routeIds)
 }
