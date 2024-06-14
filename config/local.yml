@@ -1,0 +1,4 @@
+env: "local"
+http_server: "localhost:8080"
+storage_path: "postgres://postgres:admin@localhost:5432/geograkom" # fix it
+log_lib: "devslog" 
