@@ -30,7 +30,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	repo := storage.NewRouteStorage(conn)
+	repo := storage.NewRouteStorage(conn, log)
 	s := service.NewRouteServcie(repo)
 	h := handler.NewHandler(s, log)
 	r := h.InitRoutes()

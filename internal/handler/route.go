@@ -88,7 +88,13 @@ func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
 	if result.SuccesStatusCode == 410 {
 		h.log.Debug("Result of registering route", slog.Any("resp", result))
 		w.WriteHeader(result.SuccesStatusCode)
-		json.NewEncoder(w).Encode(result)
+		resp := Response{
+			Status:  2,
+			Message: "Route is not actual",
+			Error:   "",
+			Data:    nil,
+		}
+		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
@@ -135,7 +141,13 @@ func (h *Handler) DeleteRoutes(w http.ResponseWriter, r *http.Request) {
 		ch <- v
 	}
 	close(ch)
+	resp := Response{
+		Status:  1,
+		Message: "удаление маршрутов принято в обработку",
+		Error:   "",
+		Data:    nil,
+	}
 
 	w.WriteHeader(202)
-	json.NewEncoder(w).Encode(routeIds)
+	json.NewEncoder(w).Encode(resp)
 }

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/OurLuv/geograkom/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -9,8 +10,10 @@ import (
 
 type RouteStorage struct {
 	conn *pgxpool.Pool
+	log  *slog.Logger
 }
 
+// * Creating route
 func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
 	ctx := context.Background()
 	tx, err := rs.conn.Begin(ctx)
@@ -25,12 +28,20 @@ func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	rs.log.Debug("Recieved data", slog.Any("route", route))
 	if count == 0 {
-		query = "INSERT INTO routes (route_id, route_name, load, cargo_type, is_actual)" +
-			"VALUES ($1, $2, $3, $4, $5);"
-		if _, err = tx.Exec(ctx, query, route.Id, route.Name, route.Load, route.CargoType, route.IsActual); err != nil {
-			return nil, err
+		if route.Id == 0 {
+			query = "INSERT INTO routes (route_name, load, cargo_type, is_actual)" +
+				"VALUES ($1, $2, $3, $4) RETURNING route_id;"
+			if err = tx.QueryRow(ctx, query, route.Name, route.Load, route.CargoType, route.IsActual).Scan(&route.Id); err != nil {
+				return nil, err
+			}
+		} else {
+			query = "INSERT INTO routes (route_id, route_name, load, cargo_type, is_actual)" +
+				"VALUES ($1, $2, $3, $4, $5);"
+			if _, err = tx.Exec(ctx, query, route.Id, route.Name, route.Load, route.CargoType, route.IsActual); err != nil {
+				return nil, err
+			}
 		}
 	} else {
 		query = "UPDATE routes SET is_actual = false WHERE route_id = $1;"
@@ -72,8 +83,9 @@ func (rs *RouteStorage) DeleteRouteById(id int) error {
 	return nil
 }
 
-func NewRouteStorage(conn *pgxpool.Pool) *RouteStorage {
+func NewRouteStorage(conn *pgxpool.Pool, log *slog.Logger) *RouteStorage {
 	return &RouteStorage{
 		conn: conn,
+		log:  log,
 	}
 }

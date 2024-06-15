@@ -2,6 +2,7 @@ package storage
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"testing"
 
@@ -24,7 +25,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestCreateRoute(t *testing.T) {
-	repo := NewRouteStorage(conn)
+	repo := NewRouteStorage(conn, slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
 	route := model.Route{
 		Id:        1,
 		Name:      "John",
@@ -39,8 +42,10 @@ func TestCreateRoute(t *testing.T) {
 }
 
 func TestGetRouteById(t *testing.T) {
-	repo := NewRouteStorage(conn)
-	id := 2
+	repo := NewRouteStorage(conn, slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
+	id := 1
 	res, err := repo.GetRouteByID(id)
 	if err != nil {
 		t.Error(err)
