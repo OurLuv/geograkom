@@ -98,7 +98,7 @@ func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Debug("Result of registering route", slog.Any("resp", result))
+	h.log.Debug("Result of getting route", slog.Any("resp", result))
 	w.WriteHeader(result.SuccesStatusCode)
 	json.NewEncoder(w).Encode(result)
 

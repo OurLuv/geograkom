@@ -4,6 +4,8 @@ import (
 	"github.com/OurLuv/geograkom/internal/model"
 )
 
+//go:generate mockgen -source=../handler/route.go -destination=mock/mock.go
+
 type RouteRepository interface {
 	CreateRoute(route model.Route) (*model.Route, error)
 	GetRouteByID(id int) (*model.Route, error)
