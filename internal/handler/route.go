@@ -50,7 +50,7 @@ func (h *Handler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 
 	// sending response
 	var msg string
-	if result.SuccesStatusCode == 208 {
+	if result.SuccesStatusCode == http.StatusAlreadyReported {
 		msg = fmt.Sprintf("Route [%d][id] now is not actual anymore", route.Id)
 	}
 	resp := Response{
@@ -85,7 +85,7 @@ func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// route's flag is_actual = FALSE
-	if result.SuccesStatusCode == 410 {
+	if result.SuccesStatusCode == http.StatusGone {
 		h.log.Debug("Result of registering route", slog.Any("resp", result))
 		w.WriteHeader(result.SuccesStatusCode)
 		resp := Response{
@@ -148,6 +148,6 @@ func (h *Handler) DeleteRoutes(w http.ResponseWriter, r *http.Request) {
 		Data:    nil,
 	}
 
-	w.WriteHeader(202)
+	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(resp)
 }

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/OurLuv/geograkom/internal/model"
 )
 
@@ -23,9 +25,9 @@ func (r *Route) RegisterRoute(route model.Route) (*model.Route, error) {
 		return nil, err
 	}
 	if result.Id != route.Id && route.Id != 0 {
-		result.SuccesStatusCode = 208
+		result.SuccesStatusCode = http.StatusAlreadyReported
 	} else {
-		result.SuccesStatusCode = 200
+		result.SuccesStatusCode = http.StatusOK
 	}
 
 	return result, nil
@@ -39,10 +41,10 @@ func (r *Route) GetRouteByID(id int) (*model.Route, error) {
 		return nil, err
 	}
 	if !result.IsActual {
-		result.SuccesStatusCode = 410
+		result.SuccesStatusCode = http.StatusGone
 		return result, nil
 	}
-	result.SuccesStatusCode = 200
+	result.SuccesStatusCode = http.StatusOK
 
 	return result, nil
 }

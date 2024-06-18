@@ -3,6 +3,7 @@ package handler_test
 import (
 	"fmt"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -27,7 +28,7 @@ func TestGetRouteById(t *testing.T) {
 		{
 			name:               "OK",
 			routeId:            1,
-			expectedStatusCode: 200,
+			expectedStatusCode: http.StatusOK,
 			mockBehavior: func(s *mock_service.MockRouteService, id int) {
 				s.EXPECT().GetRouteByID(id).Return(&model.Route{
 					Id:               1,
@@ -35,14 +36,14 @@ func TestGetRouteById(t *testing.T) {
 					Load:             443.4,
 					CargoType:        "sand",
 					IsActual:         true,
-					SuccesStatusCode: 200,
+					SuccesStatusCode: http.StatusOK,
 				}, nil)
 			},
 		},
 		{
 			name:               "Is Not Actual",
 			routeId:            1,
-			expectedStatusCode: 410,
+			expectedStatusCode: http.StatusGone,
 			mockBehavior: func(s *mock_service.MockRouteService, id int) {
 				s.EXPECT().GetRouteByID(id).Return(&model.Route{
 					Id:               1,
@@ -50,7 +51,7 @@ func TestGetRouteById(t *testing.T) {
 					Load:             443.4,
 					CargoType:        "sand",
 					IsActual:         false,
-					SuccesStatusCode: 410,
+					SuccesStatusCode: http.StatusGone,
 				}, nil)
 			},
 		},
