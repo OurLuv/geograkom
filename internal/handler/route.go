@@ -116,38 +116,42 @@ func (h *Handler) DeleteRoutes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch := make(chan int)
+	jobs := make(chan int)
+	NumOfWorkers := 3
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
-	go func() {
-		for id := range ch {
-			wg.Add(1)
-			id := id
-			go func() {
-				defer wg.Done()
-				h.log.Debug("passing to service", slog.Any("id", id))
-				err := h.RouteService.DeleteRoutes(id)
-				if err != nil {
-					h.log.Error("error from DB", slog.String("err", err.Error()))
-					return
-				}
-				h.log.Debug("deleted from db", slog.Any("id", id))
-			}()
-		}
-	}()
-	// [1, 3, 4]
+
+	for i := 0; i < NumOfWorkers; i++ {
+		wg.Add(1)
+		go h.WorkerDeleteRoutes(wg, jobs)
+	}
+
 	for _, v := range routeIds {
 		h.log.Debug("added to chan", slog.Any("id", v))
-		ch <- v
+		jobs <- v
 	}
-	close(ch)
+	close(jobs)
+
+	// sending response
 	resp := Response{
 		Status:  1,
 		Message: "удаление маршрутов принято в обработку",
 		Error:   "",
 		Data:    nil,
 	}
-
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(resp)
+}
+
+func (h *Handler) WorkerDeleteRoutes(wg *sync.WaitGroup, jobs <-chan int) {
+	defer wg.Done()
+	for id := range jobs {
+		h.log.Debug("passing to service", slog.Any("id", id))
+		err := h.RouteService.DeleteRoutes(id)
+		if err != nil {
+			h.log.Error("error from DB", slog.String("err", err.Error()))
+			return
+		}
+		h.log.Debug("deleted from db", slog.Any("id", id))
+	}
 }
