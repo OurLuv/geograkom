@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/OurLuv/geograkom/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,12 +14,9 @@ func NewConn(cfg config.Config) (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, err
 	}
-	var greeting string
-	err = pool.QueryRow(context.Background(), "select 'Hello, world!'").Scan(&greeting)
-	if err != nil {
+	if err := pool.Ping(ctx); err != nil {
 		return nil, err
 	}
-	fmt.Print(greeting)
 
 	return pool, nil
 }
