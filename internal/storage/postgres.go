@@ -7,9 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewConn(cfg config.Config) (*pgxpool.Pool, error) {
-
-	ctx := context.Background()
+func NewConn(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, cfg.StoragePath)
 	if err != nil {
 		return nil, err

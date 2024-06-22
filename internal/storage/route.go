@@ -14,8 +14,7 @@ type RouteStorage struct {
 }
 
 // * Creating route
-func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
-	ctx := context.Background()
+func (rs *RouteStorage) CreateRoute(ctx context.Context, route model.Route) (*model.Route, error) {
 	tx, err := rs.conn.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -63,10 +62,10 @@ func (rs *RouteStorage) CreateRoute(route model.Route) (*model.Route, error) {
 }
 
 // * Getting route by id
-func (rs *RouteStorage) GetRouteByID(id int) (*model.Route, error) {
+func (rs *RouteStorage) GetRouteByID(ctx context.Context, id int) (*model.Route, error) {
 	query := "SELECT * FROM routes WHERE route_id = $1"
 	var result model.Route
-	err := rs.conn.QueryRow(context.Background(), query, id).Scan(&result.Id, &result.Name, &result.Load, &result.CargoType, &result.IsActual)
+	err := rs.conn.QueryRow(ctx, query, id).Scan(&result.Id, &result.Name, &result.Load, &result.CargoType, &result.IsActual)
 	if err != nil {
 		return nil, err
 	}
@@ -74,9 +73,9 @@ func (rs *RouteStorage) GetRouteByID(id int) (*model.Route, error) {
 }
 
 // * Deleting route by id
-func (rs *RouteStorage) DeleteRouteById(id int) error {
+func (rs *RouteStorage) DeleteRouteById(ctx context.Context, id int) error {
 	query := "DELETE FROM routes WHERE route_id = $1"
-	_, err := rs.conn.Exec(context.Background(), query, id)
+	_, err := rs.conn.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}

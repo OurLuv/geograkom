@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"log"
 	"log/slog"
 	"os"
@@ -16,7 +17,7 @@ var conn *pgxpool.Pool
 func TestMain(m *testing.M) {
 	var err error
 	cfg := config.Config{StoragePath: "postgres://postgres:admin@localhost:5432/geograkom"}
-	conn, err = NewConn(cfg) // fix it
+	conn, err = NewConn(context.Background(), cfg) // fix it
 	if err != nil {
 		log.Fatalf("failed to init storage: %s", err)
 		os.Exit(1)
@@ -35,7 +36,7 @@ func TestCreateRoute(t *testing.T) {
 		CargoType: "sand",
 		IsActual:  true,
 	}
-	_, err := repo.CreateRoute(route)
+	_, err := repo.CreateRoute(context.Background(), route)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,7 +47,7 @@ func TestGetRouteById(t *testing.T) {
 		Level: slog.LevelDebug,
 	})))
 	id := 1
-	res, err := repo.GetRouteByID(id)
+	res, err := repo.GetRouteByID(context.Background(), id)
 	if err != nil {
 		t.Error(err)
 	}

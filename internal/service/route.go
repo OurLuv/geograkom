@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/OurLuv/geograkom/internal/model"
@@ -9,9 +10,9 @@ import (
 //go:generate mockgen -source=../handler/route.go -destination=mock/mock.go
 
 type RouteRepository interface {
-	CreateRoute(route model.Route) (*model.Route, error)
-	GetRouteByID(id int) (*model.Route, error)
-	DeleteRouteById(id int) error
+	CreateRoute(ctx context.Context, route model.Route) (*model.Route, error)
+	GetRouteByID(ctx context.Context, id int) (*model.Route, error)
+	DeleteRouteById(ctx context.Context, id int) error
 }
 
 type Route struct {
@@ -19,8 +20,8 @@ type Route struct {
 }
 
 // * Register route
-func (r *Route) RegisterRoute(route model.Route) (*model.Route, error) {
-	result, err := r.repo.CreateRoute(route)
+func (r *Route) RegisterRoute(ctx context.Context, route model.Route) (*model.Route, error) {
+	result, err := r.repo.CreateRoute(ctx, route)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +35,9 @@ func (r *Route) RegisterRoute(route model.Route) (*model.Route, error) {
 }
 
 // * Getting route by id
-func (r *Route) GetRouteByID(id int) (*model.Route, error) {
+func (r *Route) GetRouteByID(ctx context.Context, id int) (*model.Route, error) {
 
-	result, err := r.repo.GetRouteByID(id)
+	result, err := r.repo.GetRouteByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +51,8 @@ func (r *Route) GetRouteByID(id int) (*model.Route, error) {
 }
 
 // * Deleting routes
-func (r *Route) DeleteRoutes(id int) error {
-	err := r.repo.DeleteRouteById(id)
+func (r *Route) DeleteRoutes(ctx context.Context, id int) error {
+	err := r.repo.DeleteRouteById(ctx, id)
 	if err != nil {
 		return err
 	}

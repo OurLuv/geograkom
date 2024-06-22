@@ -5,6 +5,7 @@
 package mock_handler
 
 import (
+	context "context"
 	reflect "reflect"
 
 	model "github.com/OurLuv/geograkom/internal/model"
@@ -35,45 +36,45 @@ func (m *MockRouteService) EXPECT() *MockRouteServiceMockRecorder {
 }
 
 // DeleteRoutes mocks base method.
-func (m *MockRouteService) DeleteRoutes(id int) error {
+func (m *MockRouteService) DeleteRoutes(arg0 context.Context, arg1 int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteRoutes", id)
+	ret := m.ctrl.Call(m, "DeleteRoutes", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteRoutes indicates an expected call of DeleteRoutes.
-func (mr *MockRouteServiceMockRecorder) DeleteRoutes(id interface{}) *gomock.Call {
+func (mr *MockRouteServiceMockRecorder) DeleteRoutes(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRoutes", reflect.TypeOf((*MockRouteService)(nil).DeleteRoutes), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRoutes", reflect.TypeOf((*MockRouteService)(nil).DeleteRoutes), arg0, arg1)
 }
 
 // GetRouteByID mocks base method.
-func (m *MockRouteService) GetRouteByID(arg0 int) (*model.Route, error) {
+func (m *MockRouteService) GetRouteByID(arg0 context.Context, arg1 int) (*model.Route, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRouteByID", arg0)
+	ret := m.ctrl.Call(m, "GetRouteByID", arg0, arg1)
 	ret0, _ := ret[0].(*model.Route)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRouteByID indicates an expected call of GetRouteByID.
-func (mr *MockRouteServiceMockRecorder) GetRouteByID(arg0 interface{}) *gomock.Call {
+func (mr *MockRouteServiceMockRecorder) GetRouteByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteByID", reflect.TypeOf((*MockRouteService)(nil).GetRouteByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteByID", reflect.TypeOf((*MockRouteService)(nil).GetRouteByID), arg0, arg1)
 }
 
 // RegisterRoute mocks base method.
-func (m *MockRouteService) RegisterRoute(arg0 model.Route) (*model.Route, error) {
+func (m *MockRouteService) RegisterRoute(arg0 context.Context, arg1 model.Route) (*model.Route, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterRoute", arg0)
+	ret := m.ctrl.Call(m, "RegisterRoute", arg0, arg1)
 	ret0, _ := ret[0].(*model.Route)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // RegisterRoute indicates an expected call of RegisterRoute.
-func (mr *MockRouteServiceMockRecorder) RegisterRoute(arg0 interface{}) *gomock.Call {
+func (mr *MockRouteServiceMockRecorder) RegisterRoute(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterRoute", reflect.TypeOf((*MockRouteService)(nil).RegisterRoute), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterRoute", reflect.TypeOf((*MockRouteService)(nil).RegisterRoute), arg0, arg1)
 }

@@ -23,7 +23,7 @@ func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env, cfg.LogLib)
 
-	conn, err := storage.NewConn(*cfg)
+	conn, err := storage.NewConn(context.Background(), *cfg)
 	if err != nil {
 		log.Error("panic", slog.String("msg", err.Error()))
 		panic(conn)

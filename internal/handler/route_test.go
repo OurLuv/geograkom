@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 )
 
 func TestGetRouteById(t *testing.T) {
-	type mockBehavior func(s *mock_service.MockRouteService, id int)
+	type mockBehavior func(s *mock_service.MockRouteService, ctx context.Context, id int)
 
 	testCases := []struct {
 		name               string
@@ -29,8 +30,8 @@ func TestGetRouteById(t *testing.T) {
 			name:               "OK",
 			routeId:            1,
 			expectedStatusCode: http.StatusOK,
-			mockBehavior: func(s *mock_service.MockRouteService, id int) {
-				s.EXPECT().GetRouteByID(id).Return(&model.Route{
+			mockBehavior: func(s *mock_service.MockRouteService, ctx context.Context, id int) {
+				s.EXPECT().GetRouteByID(ctx, id).Return(&model.Route{
 					Id:               1,
 					Name:             "James",
 					Load:             443.4,
@@ -44,8 +45,8 @@ func TestGetRouteById(t *testing.T) {
 			name:               "Is Not Actual",
 			routeId:            1,
 			expectedStatusCode: http.StatusGone,
-			mockBehavior: func(s *mock_service.MockRouteService, id int) {
-				s.EXPECT().GetRouteByID(id).Return(&model.Route{
+			mockBehavior: func(s *mock_service.MockRouteService, ctx context.Context, id int) {
+				s.EXPECT().GetRouteByID(ctx, id).Return(&model.Route{
 					Id:               1,
 					Name:             "James",
 					Load:             443.4,
@@ -63,7 +64,7 @@ func TestGetRouteById(t *testing.T) {
 			defer c.Finish()
 
 			s := mock_service.NewMockRouteService(c)
-			tc.mockBehavior(s, tc.routeId)
+			tc.mockBehavior(s, context.Background(), tc.routeId)
 			h := handler.NewHandler(s, slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 				Level: slog.LevelDebug,
 			})))

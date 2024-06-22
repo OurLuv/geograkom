@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -14,9 +15,9 @@ import (
 
 // I prefer to describe the interface where I use it
 type RouteService interface {
-	RegisterRoute(model.Route) (*model.Route, error)
-	GetRouteByID(int) (*model.Route, error)
-	DeleteRoutes(id int) error
+	RegisterRoute(context.Context, model.Route) (*model.Route, error)
+	GetRouteByID(context.Context, int) (*model.Route, error)
+	DeleteRoutes(context.Context, int) error
 }
 
 // * Register route
@@ -40,8 +41,7 @@ func (h *Handler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 		h.log.Error("did't pass validation", slog.Any("route", route))
 		return
 	}
-
-	result, err := h.RouteService.RegisterRoute(route)
+	result, err := h.RouteService.RegisterRoute(context.Background(), route)
 	if err != nil {
 		SendError(w, "server error", http.StatusInternalServerError)
 		h.log.Error("server error", slog.String("err", err.Error()))
@@ -77,7 +77,7 @@ func (h *Handler) GetRouteByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.RouteService.GetRouteByID(routeId)
+	result, err := h.RouteService.GetRouteByID(context.Background(), routeId)
 	if err != nil {
 		SendError(w, "server error", http.StatusInternalServerError)
 		h.log.Error("server error", slog.String("err", err.Error()))
@@ -147,7 +147,7 @@ func (h *Handler) WorkerDeleteRoutes(wg *sync.WaitGroup, jobs <-chan int) {
 	defer wg.Done()
 	for id := range jobs {
 		h.log.Debug("passing to service", slog.Any("id", id))
-		err := h.RouteService.DeleteRoutes(id)
+		err := h.RouteService.DeleteRoutes(context.Background(), id)
 		if err != nil {
 			h.log.Error("error from DB", slog.String("err", err.Error()))
 			return
